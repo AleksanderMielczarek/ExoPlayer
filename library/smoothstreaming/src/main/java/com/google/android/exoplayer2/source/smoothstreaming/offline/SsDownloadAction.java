@@ -94,4 +94,13 @@ public final class SsDownloadAction extends SegmentDownloadAction {
     return new SsDownloader(uri, keys, constructorHelper);
   }
 
+  @Override
+  public DownloadAction pause() {
+    return new SsDownloadAction(uri, isRemoveAction, true, data, keys);
+  }
+
+  @Override
+  public DownloadAction resume() {
+    return new SsDownloadAction(uri, isRemoveAction, false, data, keys);
+  }
 }

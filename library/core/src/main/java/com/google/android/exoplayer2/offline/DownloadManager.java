@@ -716,7 +716,7 @@ public final class DownloadManager {
     }
 
     private Task withAction(DownloadAction action){
-      Task task = new Task(id, downloadManager, downloaderFactory, action, minRetryCount);
+      Task task = new Task(id, downloadManager, action, minRetryCount);
       task.downloader = downloader;
       task.thread = thread;
       task.error = error;

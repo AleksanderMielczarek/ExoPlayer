@@ -81,4 +81,13 @@ public final class DashDownloadAction extends SegmentDownloadAction {
     return new DashDownloader(uri, keys, constructorHelper);
   }
 
+  @Override
+  public DownloadAction pause() {
+    return new DashDownloadAction(uri, isRemoveAction, true, data, keys);
+  }
+
+  @Override
+  public DownloadAction resume() {
+    return new DashDownloadAction(uri, isRemoveAction, false, data, keys);
+  }
 }

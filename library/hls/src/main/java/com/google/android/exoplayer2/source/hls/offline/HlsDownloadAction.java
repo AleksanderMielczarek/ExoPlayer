@@ -94,4 +94,13 @@ public final class HlsDownloadAction extends SegmentDownloadAction {
     return new HlsDownloader(uri, keys, constructorHelper);
   }
 
+  @Override
+  public DownloadAction pause() {
+    return new HlsDownloadAction(uri, isRemoveAction, true, data, keys);
+  }
+
+  @Override
+  public DownloadAction resume() {
+    return new HlsDownloadAction(uri, isRemoveAction, false, data, keys);
+  }
 }

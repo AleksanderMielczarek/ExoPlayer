@@ -216,6 +216,10 @@ public abstract class DownloadAction {
     return result;
   }
 
+  public abstract DownloadAction pause();
+
+  public abstract DownloadAction resume();
+
   private static Deserializer getDeserializer(Class<?> clazz)
       throws NoSuchFieldException, IllegalAccessException {
     Object value = clazz.getDeclaredField("DESERIALIZER").get(null);
