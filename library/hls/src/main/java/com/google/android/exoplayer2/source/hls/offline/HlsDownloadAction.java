@@ -47,8 +47,8 @@ public final class HlsDownloadAction extends SegmentDownloadAction {
 
         @Override
         protected DownloadAction createDownloadAction(
-            Uri uri, boolean isRemoveAction, byte[] data, List<StreamKey> keys) {
-          return new HlsDownloadAction(uri, isRemoveAction, data, keys);
+            Uri uri, boolean isRemoveAction, boolean paused, byte[] data, List<StreamKey> keys) {
+          return new HlsDownloadAction(uri, isRemoveAction, paused, data, keys);
         }
       };
 
@@ -61,7 +61,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction {
    */
   public static HlsDownloadAction createDownloadAction(
       Uri uri, @Nullable byte[] data, List<StreamKey> keys) {
-    return new HlsDownloadAction(uri, /* isRemoveAction= */ false, data, keys);
+    return new HlsDownloadAction(uri, /* isRemoveAction= */ false, false, data, keys);
   }
 
   /**
@@ -71,7 +71,7 @@ public final class HlsDownloadAction extends SegmentDownloadAction {
    * @param data Optional custom data for this action. If {@code null} an empty array will be used.
    */
   public static HlsDownloadAction createRemoveAction(Uri uri, @Nullable byte[] data) {
-    return new HlsDownloadAction(uri, /* isRemoveAction= */ true, data, Collections.emptyList());
+    return new HlsDownloadAction(uri, /* isRemoveAction= */ true, false, data, Collections.emptyList());
   }
 
   /**
@@ -85,8 +85,8 @@ public final class HlsDownloadAction extends SegmentDownloadAction {
    */
   @Deprecated
   public HlsDownloadAction(
-      Uri uri, boolean isRemoveAction, @Nullable byte[] data, List<StreamKey> keys) {
-    super(TYPE, VERSION, uri, isRemoveAction, data, keys);
+      Uri uri, boolean isRemoveAction, boolean paused, @Nullable byte[] data, List<StreamKey> keys) {
+    super(TYPE, VERSION, uri, isRemoveAction, paused, data, keys);
   }
 
   @Override
