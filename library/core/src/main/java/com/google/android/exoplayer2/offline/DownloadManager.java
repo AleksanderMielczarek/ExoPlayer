@@ -42,6 +42,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -232,8 +233,9 @@ public final class DownloadManager {
   public void pauseDownload(DownloadAction action) {
     Assertions.checkState(!released);
     if (!downloadsStopped) {
-      for (int i = 0; i < activeDownloadTasks.size(); i++) {
-        Task task = activeDownloadTasks.get(i);
+      Iterator<Task> taskIterator = activeDownloadTasks.iterator();
+      while (taskIterator.hasNext()) {
+        Task task = taskIterator.next();
         if (task.action.equals(action)) {
           task.pause();
         }
@@ -244,19 +246,18 @@ public final class DownloadManager {
 
   public void resumeDownload(DownloadAction action) {
     Assertions.checkState(!released);
-    if (!downloadsStopped) {
-      for (int i = 0; i < tasks.size(); i++) {
-        Task task = tasks.get(i);
-        if (task.action.equals(action)) {
-          Task resumedTask = task.getResumedTask();
-          replaceTask(task, resumedTask);
-          saveActions();
-          resumedTask.resume();
-        }
+    Iterator<Task> taskIterator = tasks.iterator();
+    while (taskIterator.hasNext()) {
+      Task task = taskIterator.next();
+      if (task.action.equals(action)) {
+        Task resumedTask = task.getResumedTask();
+        replaceTask(task, resumedTask);
+        resumedTask.resume();
+        saveActions();
       }
-      maybeStartTasks();
-      logd("Download is resuming");
     }
+    startDownloads();
+    logd("Download is resuming");
   }
 
   /**
@@ -474,6 +475,7 @@ public final class DownloadManager {
 
   private void replaceTask(Task oldTask, Task newTask) {
     int index = tasks.indexOf(oldTask);
+    tasks.remove(oldTask);
     tasks.add(index, newTask);
   }
 
@@ -703,7 +705,11 @@ public final class DownloadManager {
       this.id = id;
       this.downloadManager = downloadManager;
       this.action = action;
-      this.currentState = STATE_QUEUED;
+      if (action.paused) {
+        this.currentState = STATE_PAUSED;
+      } else {
+        this.currentState = STATE_QUEUED;
+      }
       this.minRetryCount = minRetryCount;
     }
 
@@ -810,7 +816,6 @@ public final class DownloadManager {
           return STATE_QUEUED;
         case STATE_STARTED_CANCELING:
         case STATE_STARTED_PAUSING:
-          return STATE_STARTED;
         case STATE_STARTED_STOPPING:
           return STATE_STARTED;
         case STATE_QUEUED:

@@ -98,6 +98,7 @@ public final class ProgressiveDownloadAction extends DownloadAction {
   protected void writeToStream(DataOutputStream output) throws IOException {
     output.writeUTF(uri.toString());
     output.writeBoolean(isRemoveAction);
+    output.writeBoolean(paused);
     output.writeInt(data.length);
     output.write(data);
     boolean customCacheKeySet = customCacheKey != null;

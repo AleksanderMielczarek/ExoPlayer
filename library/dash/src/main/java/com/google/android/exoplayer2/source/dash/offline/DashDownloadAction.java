@@ -73,7 +73,7 @@ public final class DashDownloadAction extends SegmentDownloadAction {
   @Deprecated
   public DashDownloadAction(
       Uri uri, boolean isRemoveAction, boolean paused, @Nullable byte[] data, List<StreamKey> keys) {
-    super(TYPE, VERSION, uri, isRemoveAction,paused, data, keys);
+    super(TYPE, VERSION, uri, isRemoveAction, paused, data, keys);
   }
 
   @Override
