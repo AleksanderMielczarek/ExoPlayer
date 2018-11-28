@@ -233,31 +233,29 @@ public final class DownloadManager {
   public void pauseDownload(DownloadAction action) {
     Assertions.checkState(!released);
     if (!downloadsStopped) {
-      Iterator<Task> taskIterator = activeDownloadTasks.iterator();
-      while (taskIterator.hasNext()) {
-        Task task = taskIterator.next();
+      for (Task task : activeDownloadTasks) {
         if (task.action.equals(action)) {
           task.pause();
+          break;
         }
       }
       logd("Download is pausing");
     }
   }
 
-  public void resumeDownload(DownloadAction action) {
-    Assertions.checkState(!released);
-    Iterator<Task> taskIterator = tasks.iterator();
-    while (taskIterator.hasNext()) {
-      Task task = taskIterator.next();
+  private void resumeDownload(DownloadAction action) {
+    for (Task task : tasks) {
       if (task.action.equals(action)) {
         Task resumedTask = task.getResumedTask();
         replaceTask(task, resumedTask);
         resumedTask.resume();
         saveActions();
+        notifyListenersTaskStateChange(resumedTask);
+        maybeStartTasks();
+        notifyListenersTaskStateChange(resumedTask);
+        break;
       }
     }
-    startDownloads();
-    logd("Download is resuming");
   }
 
   /**
@@ -270,9 +268,19 @@ public final class DownloadManager {
    */
   public int handleAction(byte[] actionData) throws IOException {
     Assertions.checkState(!released);
-    ByteArrayInputStream input = new ByteArrayInputStream(actionData);
-    DownloadAction action = DownloadAction.deserializeFromStream(deserializers, input);
+    DownloadAction action = createDownloadAction(actionData);
     return handleAction(action);
+  }
+
+  public void handleResumeAction(byte[] actionData) throws IOException {
+    Assertions.checkState(!released);
+    DownloadAction action = createDownloadAction(actionData);
+    resumeDownload(action);
+  }
+
+  private DownloadAction createDownloadAction(byte[] actionData) throws IOException {
+    ByteArrayInputStream input = new ByteArrayInputStream(actionData);
+    return DownloadAction.deserializeFromStream(deserializers, input);
   }
 
   /**
@@ -864,7 +872,7 @@ public final class DownloadManager {
     }
 
     private void resume() {
-      changeStateAndNotify(STATE_PAUSED, STATE_QUEUED);
+      currentState = STATE_QUEUED;
     }
 
     private boolean changeStateAndNotify(@InternalState int oldState, @InternalState int newState) {
