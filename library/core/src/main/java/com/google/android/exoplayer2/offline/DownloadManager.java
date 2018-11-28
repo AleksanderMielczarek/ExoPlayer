@@ -244,10 +244,11 @@ public final class DownloadManager {
   }
 
   private void resumeDownload(DownloadAction action) {
-    for (Task task : tasks) {
+    for (int i = 0; i < tasks.size(); i++) {
+      Task task = tasks.get(i);
       if (task.action.equals(action)) {
         Task resumedTask = task.getResumedTask();
-        replaceTask(task, resumedTask);
+        tasks.set(i, resumedTask);
         resumedTask.resume();
         saveActions();
         notifyListenersTaskStateChange(resumedTask);
@@ -483,8 +484,7 @@ public final class DownloadManager {
 
   private void replaceTask(Task oldTask, Task newTask) {
     int index = tasks.indexOf(oldTask);
-    tasks.remove(oldTask);
-    tasks.add(index, newTask);
+    tasks.set(index, newTask);
   }
 
   private void notifyListenersTaskStateChange(Task task) {
@@ -910,7 +910,7 @@ public final class DownloadManager {
         downloader = action.createDownloader(downloadManager.downloaderConstructorHelper);
         if (action.isRemoveAction) {
           downloader.remove();
-        } else if (!action.paused){
+        } else {
           int errorCount = 0;
           long errorPosition = C.LENGTH_UNSET;
           while (!Thread.interrupted()) {
